@@ -1,5 +1,7 @@
 package org.example;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -19,6 +21,10 @@ public class AvroUtils {
         GenericRecord record = new GenericData.Record(schema);
         populateRecord(record, jsonMap, schema);
         return record;
+    }
+
+    public static JsonNode readJson(String json) throws JsonProcessingException {
+        return objectMapper.readTree(json);
     }
 
     private static void populateRecord(GenericRecord record, Map<String, Object> jsonMap, Schema schema) {
