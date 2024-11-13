@@ -7,6 +7,9 @@ import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.debezium.transforms.outbox.EventRouter;
 import io.debezium.transforms.outbox.JsonSchemaData;
 import org.apache.avro.Schema;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.kafka.connect.data.SchemaBuilder;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
 import java.io.IOException;
@@ -45,10 +48,19 @@ public class Main {
 
         var debezium = new JsonSchemaData();
         var json = AvroUtils.readJson(eventData);
-        var payloadSchema = debezium.toConnectSchema("event", json);
-        var payload = debezium.toConnectData(json, payloadSchema);
-        System.out.println("Connect Schema from Debezium: " + payloadSchema.toString());
-        System.out.println("Connect Data from Debezium: " + payload.toString());
+//        var payloadSchema = debezium.toConnectSchema("event", json);
+//        var payload = debezium.toConnectData(json, payloadSchema);
+        var payloadSchema = SchemaBuilder.struct()
+            .name("MySchema")
+            .field("foo", org.apache.kafka.connect.data.Schema.STRING_SCHEMA)
+            .field("id", org.apache.kafka.connect.data.Schema.STRING_SCHEMA)
+            .build();
+        var payload = new Struct(payloadSchema)
+                .put("foo", "123")
+                .put("id", "456");
+//        var payload = new Struct
+        System.out.println("Connect Schema from Debezium: " + ToStringBuilder.reflectionToString(payloadSchema));
+        System.out.println("Connect Data from Debezium: " + ToStringBuilder.reflectionToString(payload));
 
         var converter = new AvroConverter();
         converter.configure(config, false);
